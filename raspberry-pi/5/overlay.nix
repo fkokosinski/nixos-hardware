@@ -1,4 +1,4 @@
-final: _prev: {
+final: prev: {
   ubootRaspberryPi5_rev1_0 = final.buildUBoot {
     defconfig = "rpi_arm64_defconfig";
     extraMeta.platforms = [ "aarch64-linux" ];
@@ -12,5 +12,9 @@ final: _prev: {
     patches = [ ./uboot-rpi5-bcm2712d0.patch ];
     extraMeta.platforms = [ "aarch64-linux" ];
     filesToInstall = [ "u-boot.bin" ];
+  };
+
+  deviceTree = prev.deviceTree // {
+    applyOverlays = final.callPackage ./apply-overlays-dtmerge.nix { };
   };
 }

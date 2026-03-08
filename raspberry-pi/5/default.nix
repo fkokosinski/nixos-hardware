@@ -27,6 +27,59 @@
     ];
   };
 
+  hardware.deviceTree = {
+    overlays = [
+      {
+        name = "pciex1-on";
+        dtsText = ''
+          /dts-v1/;
+          /plugin/;
+
+          / {
+          	compatible = "brcm,bcm2712";
+
+          	fragment@0 {
+          		target = <&pciex1>;
+          		__overlay__ {
+          		  status = "okay";
+
+              	/* Enable L1 sub-state support */
+          			brcm,clkreq-mode = "default";
+              	/* Disable ASPM L0s */
+          			aspm-no-l0s;
+              	/* Use RC MSI target instead of MIP MSIx target */
+          			msi-parent = <&pciex1>;
+                /* enable gen 3 */
+          			max-link-speed = <3>;
+
+              	/*
+              	 * Shift the start of the 32bit outbound window to 2GB,
+              	 * so there are no BARs starting at 0x0. Expand the 64bit
+              	 * outbound window to use the spare 2GB.
+              	 */
+          			#address-cells = <3>;
+          			#size-cells = <2>;
+          			ranges = <0x02000000 0x00 0x80000000
+          				  0x1b 0x80000000
+          				  0x00 0x7ffffffc>,
+          				 <0x43000000 0x04 0x00000000
+          				  0x18 0x00000000
+          				  0x03 0x80000000>;
+          		};
+          	};
+
+          	__overrides__ {
+          		l1ss = <0>, "+0";
+          		no-l0s = <0>, "+1";
+          		no-mip = <0>, "+2";
+          		mmio-hi = <0>, "+3";
+          	};
+          };
+        '';
+      }
+    ];
+  };
+
   # Needed for Xorg to start (https://github.com/raspberrypi-ui/gldriver-test/blob/master/usr/lib/systemd/scripts/rp1_test.sh)
   # This won't work for displays connected to the RP1 (DPI/composite/MIPI DSI), since I don't have one to test.
   services.xserver.extraConfig = ''
