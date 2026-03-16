@@ -77,6 +77,31 @@
           };
         '';
       }
+      {
+        name = "fan-on";
+        dtsText = ''
+          /dts-v1/;
+          /plugin/;
+
+          / {
+          	compatible = "brcm,bcm2712";
+
+          	fragment@0 {
+          		target = <&fan>;
+          		__overlay__ {
+          		  status = "okay";
+            	};
+          	};
+
+          	fragment@1 {
+          		target = <&rp1_pwm1>;
+          		__overlay__ {
+          		  status = "okay";
+            	};
+            };
+          };
+        '';
+      }
     ];
   };
 
